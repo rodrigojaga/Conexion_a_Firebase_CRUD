@@ -21,6 +21,9 @@ public class rvActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     daoContacto dao;
 
+    boolean isLoading = false;
+    String key =null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,10 +37,26 @@ public class rvActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
         dao = new daoContacto();
         loadData();
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                int titalItems = linearLayoutManager.getItemCount();
+                int lastVisible = linearLayoutManager.findLastCompletelyVisibleItemPosition();
+                if(titalItems<lastVisible+3){
+                    if(!isLoading){
+                        isLoading = true;
+                        loadData();
+                    }
+                }
+            }
+        });
     }
 
     private void loadData(){
-        dao.get().addValueEventListener(new ValueEventListener() {
+
+        swipeRefreshLayout.setRefreshing(true);
+        dao.get(key).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 ArrayList<contacto> contactos = new ArrayList<>();
@@ -47,11 +66,13 @@ public class rvActivity extends AppCompatActivity {
                 }
                 adapter.setItems(contactos);
                 adapter.notifyDataSetChanged();
+                isLoading = false;
+                swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
+                swipeRefreshLayout.setRefreshing(false);
             }
         });
     }

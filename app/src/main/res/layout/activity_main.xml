@@ -62,5 +62,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Listar" />
+
+        <Button
+            android:id="@+id/button5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Log-in con Google" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
